@@ -11,21 +11,29 @@
     <color rgba="1 1 1 1"/>
   </material>
 
+  <link name="base_footprint"/>
+
   <link name="base_link">
     <visual>
-      <origin xyz="0 0 0.036" rpy="0 0 0" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <cylinder length="0.03" radius="0.350"/>
+        <cylinder length="0.03" radius="0.175"/>
       </geometry>
     </visual>
   </link>
+
+  <joint name="footprint_to_base" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0.036"/>
+  </joint>  
 
   <link name="left_wheel">
     <visual>
       <geometry>
         <cylinder length="0.03" radius="0.036"/>
       </geometry>
-      <origin rpy="1.57075 1.57075 0" xyz="0 0 0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
       <material name="black"/>
     </visual>
   </link>
@@ -34,7 +42,23 @@
     <axis xyz="0 0 1"/>
     <parent link="base_link"/>
     <child link="left_wheel"/>
-    <origin xyz="0 0.350 0.036"/>
+    <origin rpy="-1.57075 0 0" xyz="0 0.175 0"/>
+  </joint>
+
+  <link name="left_wheel_marker">
+    <visual>
+      <geometry>
+        <box size="0.03 0.001 0.01"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <material name="white"/>
+    </visual>
+  </link>
+
+  <joint name="left_wheel_to_marker" type="fixed">
+    <parent link="left_wheel"/>
+    <child link="left_wheel_marker"/>
+    <origin rpy="-1.57075 0 0" xyz="0 0 0.0155"/>
   </joint>
 
   <link name="right_wheel">
@@ -42,7 +66,7 @@
       <geometry>
         <cylinder length="0.030" radius="0.036"/>
       </geometry>
-      <origin rpy="-1.57075 -1.57075 0" xyz="0 0 0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
       <material name="black"/>
     </visual>
   </link>
@@ -51,9 +75,25 @@
     <axis xyz="0 0 -1"/>
     <parent link="base_link"/>
     <child link="right_wheel"/>
-    <origin xyz="0 -0.350 0.036"/>
+    <origin rpy="1.57075 0 0" xyz="0 -0.175 0"/>
   </joint>
-  
+
+  <link name="right_wheel_marker">
+    <visual>
+      <geometry>
+        <box size="0.03 0.001 0.01"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <material name="white"/>
+    </visual>
+  </link>
+
+  <joint name="right_wheel_to_marker" type="fixed">
+    <parent link="right_wheel"/>
+    <child link="right_wheel_marker"/>
+    <origin rpy="1.57075 0 0" xyz="0 0 0.0155"/>
+  </joint>
+
   <link name="head">
     <visual>
       <geometry>
@@ -67,6 +107,38 @@
   <joint name="base_to_head" type="fixed">
     <parent link="base_link"/>
     <child link="head"/>
-    <origin xyz="0.125 0 0.066"/>
+    <origin xyz="0.125 0 0.030"/>
   </joint>
+  
+  <link name="passive_wheel_holder">
+    <visual>
+      <geometry>
+        <cylinder length="0.016" radius="0.005"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <material name="white"/>
+    </visual>
+  </link>
+  
+  <joint name="base_to_holder" type="fixed">
+    <parent link="base_link"/>
+    <child link="passive_wheel_holder"/>
+    <origin xyz="0.125 0 -0.023"/>
+  </joint>
+  
+  <link name="passive_wheel">
+    <visual>
+      <geometry>
+        <sphere radius="0.005"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <material name="white"/>
+    </visual>
+  </link>
+  
+  <joint name="holder_to_wheel" type="fixed">
+    <parent link="passive_wheel_holder"/>
+    <child link="passive_wheel"/>
+    <origin xyz="0 0 -0.008"/>
+  </joint>   
 </robot>
