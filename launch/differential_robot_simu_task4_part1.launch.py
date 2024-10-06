@@ -3,6 +3,8 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 import xacro
 
 package_name = "ias0220_231899"
@@ -11,7 +13,7 @@ def generate_launch_description():
     package_path = os.path.join(get_package_share_directory(package_name))
 
     # Parse the urdf with xacro
-    xacro_file = os.path.join(package_path, "urdf", "differential_robot.urdf")
+    xacro_file = os.path.join(package_path, "urdf", "differential_robot_simu_task4_part1.urdf")
     doc = xacro.parse(open(xacro_file))
     xacro.process_doc(doc)
     params = {"robot_description": doc.toxml()}
@@ -22,7 +24,7 @@ def generate_launch_description():
         default=os.path.join(
             get_package_share_directory(package_name),
             "config",
-            "task2_config.rviz",
+            "task4_config.rviz",
         ),
     )
 
@@ -41,16 +43,24 @@ def generate_launch_description():
         parameters=[params],
     )
 
-    joint_state_publisher_gui_node = Node(
-        package="joint_state_publisher_gui",
-        executable="joint_state_publisher_gui",
-        name="joint_state_publisher_gui",
+    teleop_twist_node = Node(
+        package="teleop_twist_keyboard",
+        executable="teleop_twist_keyboard",
+        name="teleop_twist_keyboard",
+        prefix='xterm -e',
+        remappings=[
+            ('/cmd_vel', '/diff_cont/cmd_vel_unstamped'),
+        ],
     )
 
-    return LaunchDescription(
-        [
-            robot_state_publisher_node,
-            joint_state_publisher_gui_node,
-            rviz_node,
-        ]
-    )
+    return LaunchDescription([
+        robot_state_publisher_node,
+        rviz_node,
+        teleop_twist_node,
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([get_package_share_directory('setup_gazebo_ias0220'), '/launch/gazebo.launch.py']),
+            launch_arguments={
+                'xacro_file': xacro_file,
+            }.items()
+        ),             
+    ])
