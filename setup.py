@@ -25,8 +25,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-                'walker = ias0220_231899.random_walker:main',
-                'position_calculator = ias0220_231899.odometer:main',
+                'odometry = ias0220_231899.odometer:main',
         ],
     },
 )
