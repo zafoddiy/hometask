@@ -15,6 +15,7 @@ setup(
         (os.path.join('share', package_name, 'config'), glob('config/*.rviz')),
         (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
         (os.path.join('share', package_name, 'urdf'), glob('urdf/*.urdf')),
+        (os.path.join('share', package_name, 'data/images'), glob('data/images/*.png')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -25,7 +26,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-                'odometry = ias0220_231899.odometer:main',
+                'camera_calibration = ias0220_231899.camera_calibration:main',
+                'image_publisher = ias0220_231899.image_publisher:main',
         ],
     },
 )
