@@ -26,8 +26,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-                'camera_calibration = ias0220_231899.camera_calibration:main',
-                'image_publisher = ias0220_231899.image_publisher:main',
+                'object_recognition = ias0220_231899.object_recognition:main'
         ],
     },
 )

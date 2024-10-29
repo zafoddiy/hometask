@@ -3,6 +3,8 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
+from launch_ros.actions import ComposableNodeContainer
+from launch_ros.descriptions import ComposableNode
 from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 import xacro
@@ -24,7 +26,7 @@ def generate_launch_description():
         default=os.path.join(
             get_package_share_directory(package_name),
             "config",
-            "task4_config.rviz",
+            "task5_config.rviz",
         ),
     )
 
@@ -50,14 +52,32 @@ def generate_launch_description():
         output="screen"
     )
 
+    image_proc_node = ComposableNodeContainer(
+        name="image_proc",
+        namespace='',
+        package='rclcpp_components',
+        executable='component_container',
+        composable_node_descriptions=[
+            ComposableNode(
+                package="image_proc",
+                plugin='image_proc:RectifyNode',
+                remappings=[
+                    ('image','image_raw')
+                ],
+            ),
+        ],
+        output='both'
+    )
+
     return LaunchDescription([
         rviz_node,
         image_pub_node,
         camera_calib_node,
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([get_package_share_directory('setup_gazebo_ias0220'), '/launch/gazebo.launch.py']),
-            launch_arguments={
-                'xacro_file': xacro_file,
-            }.items()
-        ),             
+        image_proc_node,
+    #IncludeLaunchDescription(
+    #    PythonLaunchDescriptionSource([get_package_share_directory('setup_gazebo_ias0220'), '/launch/gazebo.launch.py']),
+    #    launch_arguments={
+    #        'xacro_file': xacro_file,
+    #    }.items()
+    #),             
     ])

@@ -31,15 +31,15 @@ class CameraCalibration(Node):
             Image,
             '/image_raw',
             self.subscriber_callback,
-            2)
+            10)
         self.image_processed_publisher = self.create_publisher(
             Image,
             '/image_processed',
-            2)
+            10)
         self.camera_info_publisher = self.create_publisher(
             CameraInfo,
             '/camera_info',
-            2)
+            10)
         self.camera_info_msg = CameraInfo()
     
     def subscriber_callback(self, imageMsg):
@@ -78,11 +78,11 @@ class CameraCalibration(Node):
             self.camera_info_msg.height = imageMsg.height
             self.camera_info_msg.width = imageMsg.width
             self.camera_info_msg.distortion_model = "plumb_bob"
-            self.camera_info_msg.r = np.eye(3)
-            self.camera_info_msg.k = mtx
+            self.camera_info_msg.r = np.eye(3).flatten().tolist()
+            self.camera_info_msg.k = mtx.flatten().tolist()
             mtx_zeros = np.zeros((3,1), dtype=mtx.dtype)
-            self.camera_info_msg.p = np.append(mtx, mtx_zeros, axis=1)
-            self.camera_info_msg.d = dist
+            self.camera_info_msg.p = np.append(mtx, mtx_zeros, axis=1).flatten().tolist()
+            self.camera_info_msg.d = dist.flatten().tolist()
             self.camera_info_publisher.publish(self.camera_info_msg)
             
 
