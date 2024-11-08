@@ -33,11 +33,11 @@ def generate_launch_description():
     print(f'{where_bag}')
 
     # create the full path to the bag file
-    bag_path = PathJoinSubstitution([where_bag, 'recorded'])
+    bag_path = PathJoinSubstitution([where_bag, 'rosbag_to_light'])
 
     bag_record = launch.actions.ExecuteProcess(
         cmd=[
-            'ros2', 'bag', 'record', '--all', '-o',
+            'ros2', 'bag', 'record', '/tf', '/tf_static', '/imu', '/distance', '/diff_cont/cmd_vel_unstamped', '-o',
             bag_path
         ],
         output='screen'

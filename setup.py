@@ -26,7 +26,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-                'object_recognition = ias0220_231899.object_recognition:main'
+                'steering_node = ias0220_231899.steering_node:main'
         ],
     },
 )
