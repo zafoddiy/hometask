@@ -27,7 +27,7 @@ class PDController(Node):
     def __init__(self):
         # Your code here
         super().__init__('controller')
-        
+
         # Wait for run other nodes
         time.sleep(5)
 
@@ -37,8 +37,8 @@ class PDController(Node):
 
         self.sub_odom = self.create_subscription(
             Odometry, '/diff_cont/odom', self.onOdom, 10)
-        # self.sub_goal = self.create_subscription(
-        #     PoseStamped, '/goal_pose', self.onGoal, 10)
+        self.sub_goal = self.create_subscription(
+            PoseStamped, '/goal_pose', self.onGoal, 10)
 
         self.vel_cmd_pub = self.create_publisher(
             Twist, '/diff_cont/cmd_vel', 10)
@@ -76,10 +76,11 @@ class PDController(Node):
             self.get_logger().error("Parameters not loaded correctly")
             self.get_logger().error("Please check your launch file to load yaml file correctly")
             self.get_logger().error("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        
+
         if (read_waypoints_x) and (read_waypoints_y):
             for i in range(len(read_waypoints_x)):
-                self.waypoints.append([read_waypoints_x[i], read_waypoints_y[i]])
+                self.waypoints.append(
+                    [read_waypoints_x[i], read_waypoints_y[i]])
         self.waypoints = np.array(self.waypoints)
 
         self.distance_margin = self.declare_parameter(
@@ -93,7 +94,6 @@ class PDController(Node):
         self.get_logger().info(f'Ki: {self.Ki}')
         self.get_logger().info(f'Kd: {self.Kd}')
         self.get_logger().info(f'Start Time: {self.start_time}')
-        
 
     def wrapAngle(self, angle):
         """
@@ -106,13 +106,17 @@ class PDController(Node):
         @param: angle - angle to be wrapped in [rad]
         @result: returns wrapped angle -Pi <= angle <= Pi
         """
-        
-        #TODO: Your code here
-        angle = np.arctan2(self.waypoints[0][1] - self.pos[1], self.waypoints[0][0] - self.pos[0])
-        #return the angle between -PI and PI
-        return angle
 
-        
+        # TODO: Your code here
+        if angle > math.pi:
+            corr_angle = angle - 2 * math.pi
+        elif angle < -math.pi:
+            corr_angle = angle + 2 * math.pi
+        else:
+            corr_angle = angle
+        # return the angle between -PI and PI
+        return corr_angle
+
     def control(self):
         """
         Takes the errors and calculates velocities from it, according to
@@ -120,10 +124,11 @@ class PDController(Node):
         @param: self (errors got using "calculateError" function)
         @result: sets the values in self.vel_cmd
         """
-        self.vel_cmd[0] = self.Kp[0] * self.error[0] + self.Kd[0] * self.error_change_rate[0] + self.Ki[0] * self.error_integral[0]
-        self.vel_cmd[1] = self.Kp[1] * self.error[1] + self.Kd[1] * self.error_change_rate[1] + self.Ki[1] * self.error_integral[1]
+        self.vel_cmd[0] = self.Kp[0] * self.error[0] + self.Kd[0] * \
+            self.error_change_rate[0] + self.Ki[0] * self.error_integral[0]
+        self.vel_cmd[1] = self.Kp[1] * self.error[1] + self.Kd[1] * \
+            self.error_change_rate[1] + self.Ki[1] * self.error_integral[1]
         # Your code here
-        
 
     def publishWaypoints(self):
         """
@@ -161,13 +166,18 @@ class PDController(Node):
                  self.pos_diff
         """
         # Your code here
-        self.pos_diff = [self.waypoints[0][0] - self.pos[0], self.waypoints[0][1] - self.pos[1]]
-        dist_error = math.sqrt(math.pow(self.pos_diff[0], 2) + math.pow(self.pos_diff[1], 2))
-        correct_theta = self.wrapAngle(self.theta)
-        self.th_diff = correct_theta - self.theta
+        try:
+            self.pos_diff = [self.waypoints[0][0] -
+                             self.pos[0], self.waypoints[0][1] - self.pos[1]]
+            theta_goal = np.arctan2(self.waypoints[0][1] -
+                                    self.pos[1], self.waypoints[0][0] - self.pos[0])
+            self.th_diff = theta_goal - self.wrapAngle(self.theta)
+        except:
+            self.pos_diff = [0.0, 0.0]
+            self.th_diff = 0.0
+        dist_error = math.sqrt(
+            math.pow(self.pos_diff[0], 2) + math.pow(self.pos_diff[1], 2))
         self.error = [dist_error, self.th_diff]
-        self.get_logger().info(f'Error: {dist_error}')
-        self.get_logger().info(f'Waypoint: {self.waypoints[0]}')
         self.error_change_rate = [dist_error / self.dt, self.th_diff / self.dt]
         self.error_integral = [dist_error * self.dt, self.th_diff * self.dt]
 
@@ -199,15 +209,16 @@ class PDController(Node):
         self.pos[1] = odom_msg.pose.pose.position.y
 
         orientation_q = odom_msg.pose.pose.orientation
-        orientation_list = [orientation_q.x, orientation_q.y, orientation_q.z, orientation_q.w]
+        orientation_list = [orientation_q.x,
+                            orientation_q.y, orientation_q.z, orientation_q.w]
         self.theta = euler_from_quaternion(orientation_list)[2]
-        
+
         now_odom_time = rclpy.time.Time.from_msg(odom_msg.header.stamp)
-        
+
         dt_tmp = (now_odom_time - self.last_odom_time).to_msg()
         self.dt = float(dt_tmp.sec + dt_tmp.nanosec/1e9)
         self.last_odom_time = now_odom_time
-        
+
         # Calculate error between current pose and next waypoint position
         self.calculateError()
 
@@ -228,13 +239,26 @@ class PDController(Node):
 
         # Publish waypoints visualization
         self.publishWaypoints()
-        
+
+    def onGoal(self, goal_msg):
+        """
+        Handles incoming goal additions (callback function).
+        @param: self
+        @param goal_msg - goal message
+        @result: update of goal waypoint based on user input
+        """
+        new_waypoint = np.array(
+            [goal_msg.pose.position.x, goal_msg.pose.position.y])
+        self.waypoints = np.vstack((self.waypoints, new_waypoint))
+        self.get_logger().info(
+            f"New waypoint received: {self.waypoints[0]}")
 
 
 def main(args=None):
     rclpy.init(args=args)
     controller = PDController()
     rclpy.spin(controller)
-    
+
+
 if __name__ == "__main__":
     main()

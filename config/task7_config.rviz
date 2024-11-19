@@ -6,6 +6,10 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
+        - /Odometry1
+        - /Odometry1/Covariance1
+        - /Odometry1/Covariance1/Position1
+        - /Odometry1/Covariance1/Orientation1
       Splitter Ratio: 0.5
     Tree Height: 407
   - Class: rviz_common/Selection
@@ -125,8 +129,8 @@ Visualization Manager:
           Color: 255; 255; 127
           Color Style: Unique
           Frame: Local
-          Offset: 1
-          Scale: 1
+          Offset: 0.004999999888241291
+          Scale: 0.009999999776482582
           Value: true
         Position:
           Alpha: 0.30000001192092896
@@ -215,25 +219,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 30.37151336669922
+      Distance: 8.16379165649414
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 2.4220123291015625
-        Y: 2.0256457328796387
-        Z: -0.38118618726730347
+        X: 1.1756001710891724
+        Y: 7.532742977142334
+        Z: 4.839706897735596
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.4547971487045288
+      Pitch: 0.46979716420173645
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 3.9776504039764404
+      Yaw: 3.8426501750946045
     Saved: ~
 Window Geometry:
   Displays:
@@ -251,5 +255,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1296
-  X: 74
+  X: 70
   Y: 27
