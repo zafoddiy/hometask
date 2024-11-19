@@ -283,7 +283,7 @@
       <legacy_mode>false</legacy_mode>
       <ros>
         <remapping>odom:=diff_cont/odom</remapping>
-        <remapping>cmd_vel:=diff_cont/cmd_vel_unstamped</remapping>
+        <remapping>cmd_vel:=diff_cont/cmd_vel</remapping>
       </ros>          
     </plugin>
     <plugin name="p3d_base_controller" filename="libgazebo_ros_p3d.so">

@@ -10,44 +10,69 @@ import xacro
 
 package_name = "ias0220_231899"
 
+
 def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='True')
     package_path = os.path.join(get_package_share_directory(package_name))
 
     # Parse the urdf with xacro
-    xacro_file = os.path.join(package_path, "urdf", "differential_robot_simu_task5_part2.urdf")
+    xacro_file = os.path.join(package_path, "urdf",
+                              "differential_robot_simu_task5_part2.urdf")
     doc = xacro.parse(open(xacro_file))
     xacro.process_doc(doc)
     params = {"robot_description": doc.toxml(), "use_sim_time": use_sim_time}
 
     # Define launch arguments
+    rvizconfig = LaunchConfiguration(
+        "rvizconfig",
+        default=os.path.join(
+            get_package_share_directory(package_name),
+            "config",
+            "task7_config.rviz",
+        ),
+    )
+
+    yaml_config = os.path.join(
+        get_package_share_directory(package_name),
+        "config",
+        "simple_control_v2.yaml"
+    )
 
     # Define nodes
-
-    robot_state_publisher_node = Node(
-        package="robot_state_publisher",
-        executable="robot_state_publisher",
-        name="robot_state_publisher",
-        parameters=[params],
+    rviz_node = Node(
+        package="rviz2",
+        executable="rviz2",
+        name="rviz",
+        arguments=["--display-config", rvizconfig],
     )
+
+    static_transform_publisher_node = Node(
+       package="tf2_ros",
+       executable="static_transform_publisher",
+       arguments = ["--frame-id", "map", "--child-frame-id", "odom"],
+    )
+
+    controller_node = Node(
+        package="ias0220_231899",
+        executable="simple_control",
+        parameters=[yaml_config],
+        output="screen"
+    )
+
+    
 
     return LaunchDescription([
         DeclareLaunchArgument(
             'use_sim_time',
-            default_value='true',
+            default_value='false',
             description='Use simulation (Gazebo) clock if true'),
-        robot_state_publisher_node,
+        rviz_node,
+        static_transform_publisher_node,
+        controller_node,
         IncludeLaunchDescription(
            PythonLaunchDescriptionSource([get_package_share_directory('setup_gazebo_ias0220'), '/launch/gazebo.launch.py']),
            launch_arguments={
                'xacro_file': xacro_file,
            }.items()
         ),
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([get_package_share_directory(
-                'ias0220_sensors'), '/launch/sensors_rviz.launch.py']),
-            launch_arguments={
-                'which_bag': 'rosbag_to_light',
-            }.items()
-        ),         
     ])
