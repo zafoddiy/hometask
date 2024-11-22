@@ -28,7 +28,7 @@ def generate_launch_description():
         default=os.path.join(
             get_package_share_directory(package_name),
             "config",
-            "task7_config.rviz",
+            "task8_config.rviz",
         ),
     )
 
@@ -47,9 +47,9 @@ def generate_launch_description():
     )
 
     static_transform_publisher_node = Node(
-       package="tf2_ros",
-       executable="static_transform_publisher",
-       arguments = ["--frame-id", "map", "--child-frame-id", "odom"],
+        package="tf2_ros",
+        executable="static_transform_publisher",
+        arguments=["--frame-id", "map", "--child-frame-id", "odom"],
     )
 
     controller_node = Node(
@@ -59,20 +59,19 @@ def generate_launch_description():
         output="screen"
     )
 
-    
-
     return LaunchDescription([
         DeclareLaunchArgument(
             'use_sim_time',
-            default_value='false',
+            default_value='true',
             description='Use simulation (Gazebo) clock if true'),
         rviz_node,
         static_transform_publisher_node,
         controller_node,
         IncludeLaunchDescription(
-           PythonLaunchDescriptionSource([get_package_share_directory('setup_gazebo_ias0220'), '/launch/gazebo.launch.py']),
-           launch_arguments={
-               'xacro_file': xacro_file,
-           }.items()
+            PythonLaunchDescriptionSource([get_package_share_directory(
+                'setup_gazebo_ias0220'), '/launch/gazebo.launch.py']),
+            launch_arguments={
+                'xacro_file': xacro_file,
+            }.items()
         ),
     ])

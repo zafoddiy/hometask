@@ -56,6 +56,8 @@ class PDController(Node):
 
         self.error = np.array([0.0, 0.0])
 
+        self.prev_error = np.array([0.0, 0.0])
+
         self.error_change_rate = np.array([0.0, 0.0])
 
         self.error_integral = np.array([0.0, 0.0])
@@ -106,8 +108,6 @@ class PDController(Node):
         @param: angle - angle to be wrapped in [rad]
         @result: returns wrapped angle -Pi <= angle <= Pi
         """
-
-        # TODO: Your code here
         if angle > math.pi:
             corr_angle = angle - 2 * math.pi
         elif angle < -math.pi:
@@ -124,10 +124,12 @@ class PDController(Node):
         @param: self (errors got using "calculateError" function)
         @result: sets the values in self.vel_cmd
         """
-        self.vel_cmd[0] = self.Kp[0] * self.error[0] + self.Kd[0] * \
-            self.error_change_rate[0] + self.Ki[0] * self.error_integral[0]
-        self.vel_cmd[1] = self.Kp[1] * self.error[1] + self.Kd[1] * \
-            self.error_change_rate[1] + self.Ki[1] * self.error_integral[1]
+        self.vel_cmd[0] = self.Kp[0] * self.error[0] + \
+            self.Kd[0] * self.error_change_rate[0] + \
+            self.Ki[0] * self.error_integral[0]
+        self.vel_cmd[1] = self.Kp[1] * self.error[1] + \
+            self.Kd[1] * self.error_change_rate[1] + \
+            self.Ki[1] * self.error_integral[1]
         # Your code here
 
     def publishWaypoints(self):
@@ -167,19 +169,22 @@ class PDController(Node):
         """
         # Your code here
         try:
-            self.pos_diff = [self.waypoints[0][0] -
-                             self.pos[0], self.waypoints[0][1] - self.pos[1]]
+            dist_diff = [self.waypoints[0][0] -
+                         self.pos[0], self.waypoints[0][1] - self.pos[1]]
             theta_goal = np.arctan2(self.waypoints[0][1] -
                                     self.pos[1], self.waypoints[0][0] - self.pos[0])
-            self.th_diff = theta_goal - self.wrapAngle(self.theta)
+            self.th_diff = self.wrapAngle(theta_goal - self.theta)
         except:
-            self.pos_diff = [0.0, 0.0]
+            dist_diff = [0.0, 0.0]
             self.th_diff = 0.0
-        dist_error = math.sqrt(
-            math.pow(self.pos_diff[0], 2) + math.pow(self.pos_diff[1], 2))
-        self.error = [dist_error, self.th_diff]
-        self.error_change_rate = [dist_error / self.dt, self.th_diff / self.dt]
-        self.error_integral = [dist_error * self.dt, self.th_diff * self.dt]
+        self.pos_diff = math.sqrt(
+            math.pow(dist_diff[0], 2) + math.pow(dist_diff[1], 2))
+        self.error = [self.pos_diff, self.th_diff]
+        self.error_change_rate = [(self.pos_diff - self.prev_error[0]) /
+                                  self.dt, (self.wrapAngle(self.th_diff - self.prev_error[1])) / self.dt]
+        self.error_integral = [(self.pos_diff + self.prev_error[0])
+                               * self.dt, (self.wrapAngle(self.th_diff + self.prev_error[1])) * self.dt]
+        self.prev_error = self.error
 
     def isWaypointReached(self):
         """
@@ -193,6 +198,7 @@ class PDController(Node):
         if self.waypoints.size != 0:
             if (self.error[0] < self.distance_margin):
                 self.waypoints = np.delete(self.waypoints, 0, axis=0)
+                self.error_integral = [0.0, 0.0]
                 return True
 
         return False
