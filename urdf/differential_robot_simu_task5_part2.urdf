@@ -168,6 +168,70 @@
     <child link="head"/>
     <origin xyz="0.130 0 0.030"/>
   </joint>
+
+  <!-- Laser -->
+  <link name="laser_connector">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.016" radius="0.005"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+
+    <collision>
+      <geometry>
+        <cylinder length="0.016" radius="0.005"/>
+      </geometry>
+    </collision>
+
+    <inertial>
+      <mass value="0.02" />
+      <inertia ixx="5.51666667e-7" ixy="0.0" ixz="0.0" iyy="5.51666667e-7" iyz="0.0" izz="2.5e-7"/>
+    </inertial>
+  </link>
+  
+  <joint name="laser_connector_joint" type="fixed">
+    <origin xyz="0 0 0.023" rpy="0 0 0"/>
+    <parent link="head"/>
+    <child link="laser_connector"/>
+  </joint>
+  
+  <gazebo reference="laser_connector">
+    <material>Gazebo/White</material>
+  </gazebo>
+  
+  <link name="laser_emitter">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <material name="white"/>
+      <geometry>
+        <cylinder length="0.030" radius="0.036"/>
+      </geometry>
+    </visual>
+
+    <collision>
+      <geometry>
+        <cylinder length="0.030" radius="0.036"/>
+      </geometry>
+    </collision>
+
+    <inertial>
+      <mass value="0.015" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="5.985e-6" ixy="0.0" ixz="0.0" iyy="5.985e-6" iyz="0.0" izz="9.72e-6"/>
+    </inertial>
+  </link>
+  
+  <joint name="laser_emitter_joint" type="fixed">
+    <origin xyz="0 0 0.023" rpy="0 0 0"/>
+    <parent link="laser_connector"/>
+    <child link="laser_emitter"/>
+  </joint>
+  
+  <gazebo reference="laser_emitter">
+    <material>Gazebo/White</material>
+  </gazebo> 
   
   <link name="passive_wheel_holder">
     <visual>
@@ -293,11 +357,53 @@
       <update_rate>50.0</update_rate>
       <body_name>base_footprint</body_name>
       <gaussian_noise>0.0</gaussian_noise>
-      <frame_name>odom</frame_name>
+      <frame_name>map</frame_name>
       <xyz_offset>0 0 0</xyz_offset>
       <rpy_offset>0 0 0</rpy_offset>
     </plugin> 
   </gazebo>
+  
+  
+  <gazebo reference="laser_emitter">
+    <sensor type="ray" name="head_hokuyo_sensor">
+      <pose>0 0 0 0 0 0</pose>
+      <visualize>true</visualize>
+      <update_rate>40</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>720</samples>
+            <resolution>1</resolution>
+            <min_angle>-1.570796</min_angle>
+            <max_angle>1.570796</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.10</min>
+          <max>30.0</max>
+          <resolution>0.01</resolution>
+        </range>
+        <noise>
+          <type>gaussian</type>
+          <!-- Noise parameters based on published spec for Hokuyo laser
+               achieving "+-30mm" accuracy at range < 10m.  A mean of 0.0m and
+               stddev of 0.01m will put 99.7% of samples within 0.03m of the true
+               reading. -->
+          <mean>0.0</mean>
+          <stddev>0.01</stddev>
+        </noise>
+      </ray>
+      <plugin name="gazebo_ros_head_hokuyo_controller" filename="libgazebo_ros_ray_sensor.so">
+        <ros>
+          <remapping>~/out:=scan</remapping>
+        </ros>
+        <output_type>sensor_msgs/LaserScan</output_type>
+        <frameName>laser_emitter</frameName>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  
   <gazebo reference="head">
     <sensor type="camera" name="camera1">
       <update_rate>30.0</update_rate>

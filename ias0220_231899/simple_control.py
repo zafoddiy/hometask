@@ -22,6 +22,9 @@ from visualization_msgs.msg import Marker
 from nav_msgs.msg import Odometry
 from tf_transformations import euler_from_quaternion
 
+from tf2_ros.buffer import Buffer
+from tf2_ros.transform_listener import TransformListener
+
 
 class PDController(Node):
     def __init__(self):
@@ -44,10 +47,13 @@ class PDController(Node):
             Twist, '/diff_cont/cmd_vel', 10)
         self.pub_viz = self.create_publisher(Marker, "waypoints", 10)
 
-        self.marker_frame = "odom"
+        self.marker_frame = "map"
 
         self.vel_cmd_msg = Twist()
         self.vel_cmd = np.array([0.0, 0.0])
+
+        self.tf_buffer = Buffer()
+        self.tf_listener = TransformListener(self.tf_buffer, self)
 
         self.pos = np.array([0.0, 0.0])
         self.pos_diff = np.array([0.0, 0.0])
@@ -169,10 +175,14 @@ class PDController(Node):
         """
         # Your code here
         try:
+            transform = self.tf_buffer.lookup_transform(
+                "map", 
+                "odom", 
+                rclpy.time.Time())
             dist_diff = [self.waypoints[0][0] -
-                         self.pos[0], self.waypoints[0][1] - self.pos[1]]
+                         self.pos[0] - transform.transform.translation.x, self.waypoints[0][1] - self.pos[1] - transform.transform.translation.y]
             theta_goal = np.arctan2(self.waypoints[0][1] -
-                                    self.pos[1], self.waypoints[0][0] - self.pos[0])
+                                    self.pos[1] - transform.transform.translation.y, self.waypoints[0][0] - self.pos[0] - transform.transform.translation.x)
             self.th_diff = self.wrapAngle(theta_goal - self.theta)
         except:
             dist_diff = [0.0, 0.0]
@@ -210,7 +220,6 @@ class PDController(Node):
         @param odom_msg - odometry geometry message
         @result: update of relevant vehicle state variables
         """
-
         self.pos[0] = odom_msg.pose.pose.position.x
         self.pos[1] = odom_msg.pose.pose.position.y
 

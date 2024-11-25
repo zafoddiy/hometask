@@ -14,6 +14,8 @@ setup(
         ('share/' + package_name, ['package.xml']),
         (os.path.join('share', package_name, 'config'), glob('config/*.rviz')),
         (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
+        (os.path.join('share', package_name, 'map'), glob('map/*.yaml')),
+        (os.path.join('share', package_name, 'map'), glob('map/*.pgm')),
         (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
         (os.path.join('share', package_name, 'urdf'), glob('urdf/*.urdf')),
         (os.path.join('share', package_name, 'data/images'), glob('data/images/*.png')),
