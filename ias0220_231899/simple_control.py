@@ -14,6 +14,7 @@ using a simple PD controller and provided odometry data.
 import math
 import rclpy
 import time
+import rclpy.duration
 from rclpy.node import Node
 from rclpy.time import Duration, Time
 import numpy as np
@@ -120,7 +121,6 @@ class PDController(Node):
             corr_angle = angle + 2 * math.pi
         else:
             corr_angle = angle
-        # return the angle between -PI and PI
         return corr_angle
 
     def control(self):
@@ -130,13 +130,7 @@ class PDController(Node):
         @param: self (errors got using "calculateError" function)
         @result: sets the values in self.vel_cmd
         """
-        self.vel_cmd[0] = self.Kp[0] * self.error[0] + \
-            self.Kd[0] * self.error_change_rate[0] + \
-            self.Ki[0] * self.error_integral[0]
-        self.vel_cmd[1] = self.Kp[1] * self.error[1] + \
-            self.Kd[1] * self.error_change_rate[1] + \
-            self.Ki[1] * self.error_integral[1]
-        # Your code here
+        self.vel_cmd = self.Kp * self.error + self.Kd * self.error_change_rate + self.Ki * self.error_integral
 
     def publishWaypoints(self):
         """
@@ -174,27 +168,25 @@ class PDController(Node):
                  self.pos_diff
         """
         # Your code here
-        try:
-            transform = self.tf_buffer.lookup_transform(
-                "map", 
-                "odom", 
-                rclpy.time.Time())
-            dist_diff = [self.waypoints[0][0] -
-                         self.pos[0] - transform.transform.translation.x, self.waypoints[0][1] - self.pos[1] - transform.transform.translation.y]
-            theta_goal = np.arctan2(self.waypoints[0][1] -
-                                    self.pos[1] - transform.transform.translation.y, self.waypoints[0][0] - self.pos[0] - transform.transform.translation.x)
-            self.th_diff = self.wrapAngle(theta_goal - self.theta)
-        except:
-            dist_diff = [0.0, 0.0]
-            self.th_diff = 0.0
-        self.pos_diff = math.sqrt(
-            math.pow(dist_diff[0], 2) + math.pow(dist_diff[1], 2))
-        self.error = [self.pos_diff, self.th_diff]
-        self.error_change_rate = [(self.pos_diff - self.prev_error[0]) /
-                                  self.dt, (self.wrapAngle(self.th_diff - self.prev_error[1])) / self.dt]
-        self.error_integral = [(self.pos_diff + self.prev_error[0])
-                               * self.dt, (self.wrapAngle(self.th_diff + self.prev_error[1])) * self.dt]
         self.prev_error = self.error
+        if self.waypoints.size != 0:
+            vector = self.waypoints[0] - self.pos
+            theta_goal = np.arctan2(vector[1], vector[0])
+            self.th_diff = self.wrapAngle(theta_goal - self.theta)
+            self.pos_diff = np.sqrt(np.square(vector[0]) + np.square(vector[1]))
+        else:
+            self.th_diff = 0.0
+            self.pos_diff = 0.0
+
+        self.error[0] = self.pos_diff
+        self.error[1] = self.th_diff
+
+        if self.dt > 0:
+            self.error_change_rate[0] = (self.error[0] - self.prev_error[0]) / self.dt
+            self.error_change_rate[1] = self.wrapAngle(self.error[1] - self.prev_error[1]) / self.dt
+            self.error_integral[0] = (self.error[0] + self.prev_error[0]) * self.dt
+            self.error_integral[1] = self.wrapAngle(self.error[1] + self.prev_error[1]) * self.dt
+
 
     def isWaypointReached(self):
         """
@@ -220,13 +212,31 @@ class PDController(Node):
         @param odom_msg - odometry geometry message
         @result: update of relevant vehicle state variables
         """
-        self.pos[0] = odom_msg.pose.pose.position.x
-        self.pos[1] = odom_msg.pose.pose.position.y
 
-        orientation_q = odom_msg.pose.pose.orientation
-        orientation_list = [orientation_q.x,
-                            orientation_q.y, orientation_q.z, orientation_q.w]
-        self.theta = euler_from_quaternion(orientation_list)[2]
+        try:
+            transform = self.tf_buffer.lookup_transform(
+                "map", 
+                "base_footprint", 
+                rclpy.time.Time(),
+                timeout=rclpy.duration.Duration(seconds=0.1))
+            self.pos[0] = transform.transform.translation.x
+            self.pos[1] = transform.transform.translation.y
+            orientation_q = odom_msg.pose.pose.orientation
+            orientation_q.x = transform.transform.rotation.x
+            orientation_q.y = transform.transform.rotation.y
+            orientation_q.z = transform.transform.rotation.z
+            orientation_q.w = transform.transform.rotation.w
+            orientation_list = [orientation_q.x,
+                                orientation_q.y, orientation_q.z, orientation_q.w]
+            self.theta = euler_from_quaternion(orientation_list)[2]
+            
+        except:
+            self.pos[0] = odom_msg.pose.pose.position.x
+            self.pos[1] = odom_msg.pose.pose.position.y
+            orientation_q = odom_msg.pose.pose.orientation
+            orientation_list = [orientation_q.x,
+                                orientation_q.y, orientation_q.z, orientation_q.w]
+            self.theta = euler_from_quaternion(orientation_list)[2]
 
         now_odom_time = rclpy.time.Time.from_msg(odom_msg.header.stamp)
 

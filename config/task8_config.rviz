@@ -6,9 +6,13 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
+        - /Odometry1
         - /Odometry1/Covariance1
         - /Odometry1/Covariance1/Position1
         - /Odometry1/Covariance1/Orientation1
+        - /Odometry2
+        - /Odometry2/Shape1
+        - /Map1
       Splitter Ratio: 0.5
     Tree Height: 407
   - Class: rviz_common/Selection
@@ -78,6 +82,16 @@ Visualization Manager:
           Show Trail: false
           Value: true
         head:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        laser_connector:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        laser_emitter:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -197,7 +211,7 @@ Visualization Manager:
         Alpha: 1
         Axes Length: 1
         Axes Radius: 0.10000000149011612
-        Color: 255; 25; 0
+        Color: 25; 255; 0
         Head Length: 0.30000001192092896
         Head Radius: 0.10000000149011612
         Shaft Length: 1
@@ -210,6 +224,27 @@ Visualization Manager:
         History Policy: Keep Last
         Reliability Policy: Reliable
         Value: /ground_truth
+      Value: true
+    - Alpha: 0.699999988079071
+      Class: rviz_default_plugins/Map
+      Color Scheme: map
+      Draw Behind: false
+      Enabled: true
+      Name: Map
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /map
+      Update Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /map_updates
+      Use Timestamp: false
       Value: true
   Enabled: true
   Global Options:
@@ -257,16 +292,16 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 20.245229721069336
+      Distance: 18.82895278930664
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 2.8130311965942383
-        Y: 1.1472773551940918
-        Z: -0.8082559704780579
+        X: 2.14001727104187
+        Y: 2.048266649246216
+        Z: -0.6765468716621399
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
@@ -293,5 +328,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1296
-  X: 70
+  X: 74
   Y: 27
