@@ -5,6 +5,7 @@ from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 from launch.actions import IncludeLaunchDescription
+from launch.actions import TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 import xacro
 
@@ -73,30 +74,37 @@ def generate_launch_description():
 
     map_server_node = Node(
         package='nav2_map_server',
-        executable='map_server', 
+        executable='map_server',
         name='map_server',
-        output='screen', 
-        parameters=[{'use_sim_time': True}, 
-             {'yaml_filename':map_file}]
+        output='screen',
+        parameters=[{'use_sim_time': True},
+                    {'yaml_filename': map_file},
+                    {'frame_id': 'map'}
+                    ]
     )
 
     lifecycle_manager_node = Node(
         package='nav2_lifecycle_manager',
         executable='lifecycle_manager',
-        name='lifecycle_manager_mapper', 
+        name='lifecycle_manager_mapper',
         output='screen',
-        parameters=[{'use_sim_time': True}, 
-             {'autostart': True}, 
-             {'node_names': ['map_server']}]
+        parameters=[{'use_sim_time': True},
+                    {'autostart': True},
+                    {'node_names': ['map_server', "amcl"]}]
     )
 
     amcl_node = Node(
         package='nav2_amcl',
-        executable='amcl', 
-        name='amcl', 
+        executable='amcl',
+        name='amcl',
         output='screen',
         parameters=[nav2_yaml]
     )
+
+    map_server_timer = TimerAction(period=7.0, actions=[map_server_node])
+    amcl_timer = TimerAction(period=7.0, actions=[amcl_node])
+    lifecycle_timer = TimerAction(
+        period=7.0, actions=[lifecycle_manager_node])
 
     return LaunchDescription([
         DeclareLaunchArgument(
@@ -106,9 +114,9 @@ def generate_launch_description():
         rviz_node,
         controller_node,
         static_transform_publisher_node,
-        map_server_node,
-        lifecycle_manager_node,
-        amcl_node,
+        map_server_timer,
+        amcl_timer,
+        lifecycle_timer,
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([get_package_share_directory(
                 'setup_gazebo_ias0220'), '/launch/gazebo.launch.py']),

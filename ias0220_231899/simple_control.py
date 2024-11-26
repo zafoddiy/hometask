@@ -130,7 +130,8 @@ class PDController(Node):
         @param: self (errors got using "calculateError" function)
         @result: sets the values in self.vel_cmd
         """
-        self.vel_cmd = self.Kp * self.error + self.Kd * self.error_change_rate + self.Ki * self.error_integral
+        self.vel_cmd = self.Kp * self.error + self.Kd * \
+            self.error_change_rate + self.Ki * self.error_integral
 
     def publishWaypoints(self):
         """
@@ -173,7 +174,8 @@ class PDController(Node):
             vector = self.waypoints[0] - self.pos
             theta_goal = np.arctan2(vector[1], vector[0])
             self.th_diff = self.wrapAngle(theta_goal - self.theta)
-            self.pos_diff = np.sqrt(np.square(vector[0]) + np.square(vector[1]))
+            self.pos_diff = np.sqrt(
+                np.square(vector[0]) + np.square(vector[1]))
         else:
             self.th_diff = 0.0
             self.pos_diff = 0.0
@@ -182,11 +184,14 @@ class PDController(Node):
         self.error[1] = self.th_diff
 
         if self.dt > 0:
-            self.error_change_rate[0] = (self.error[0] - self.prev_error[0]) / self.dt
-            self.error_change_rate[1] = self.wrapAngle(self.error[1] - self.prev_error[1]) / self.dt
-            self.error_integral[0] = (self.error[0] + self.prev_error[0]) * self.dt
-            self.error_integral[1] = self.wrapAngle(self.error[1] + self.prev_error[1]) * self.dt
-
+            self.error_change_rate[0] = (
+                self.error[0] - self.prev_error[0]) / self.dt
+            self.error_change_rate[1] = self.wrapAngle(
+                self.error[1] - self.prev_error[1]) / self.dt
+            self.error_integral[0] = (
+                self.error[0] + self.prev_error[0]) * self.dt
+            self.error_integral[1] = self.wrapAngle(
+                self.error[1] + self.prev_error[1]) * self.dt
 
     def isWaypointReached(self):
         """
@@ -215,8 +220,8 @@ class PDController(Node):
 
         try:
             transform = self.tf_buffer.lookup_transform(
-                "map", 
-                "base_footprint", 
+                "map",
+                "base_footprint",
                 rclpy.time.Time(),
                 timeout=rclpy.duration.Duration(seconds=0.1))
             self.pos[0] = transform.transform.translation.x
@@ -229,7 +234,7 @@ class PDController(Node):
             orientation_list = [orientation_q.x,
                                 orientation_q.y, orientation_q.z, orientation_q.w]
             self.theta = euler_from_quaternion(orientation_list)[2]
-            
+
         except:
             self.pos[0] = odom_msg.pose.pose.position.x
             self.pos[1] = odom_msg.pose.pose.position.y
@@ -258,6 +263,8 @@ class PDController(Node):
         self.control()
 
         # publish velocity commands
+        if self.vel_cmd[0] > 1.0:
+            self.vel_cmd[0] = 1.0
         self.vel_cmd_msg.linear.x = self.vel_cmd[0]
         self.vel_cmd_msg.angular.z = self.vel_cmd[1]
         self.vel_cmd_pub.publish(self.vel_cmd_msg)
