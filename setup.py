@@ -29,7 +29,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-                'simple_control = ias0220_231899.simple_control:main'
+                'simple_control = ias0220_231899.simple_control:main',
+                'square_movement = ias0220_231899.square_movement:main'
         ],
     },
 )
