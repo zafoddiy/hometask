@@ -49,7 +49,11 @@ def generate_launch_description():
     slam_node = Node(
         package="slam_toolbox",
         executable="async_slam_toolbox_node",
-        name="async_slam_toolbox_node"
+        name="async_slam_toolbox_node",
+        remappings=[
+            ('/scan', '/tb4_34/scan'),
+            ('/tf', '/tb4_34/tf'),
+        ],
     )
 
     controller_node = Node(
@@ -67,11 +71,4 @@ def generate_launch_description():
         rviz_node,
         controller_node,
         slam_node,
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([get_package_share_directory(
-                'setup_gazebo_ias0220'), '/launch/gazebo.launch.py']),
-            launch_arguments={
-                'xacro_file': xacro_file,
-            }.items()
-        ),
     ])

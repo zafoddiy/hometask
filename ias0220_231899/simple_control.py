@@ -39,12 +39,12 @@ class PDController(Node):
         self.last_odom_time = self.get_clock().now()
 
         self.sub_odom = self.create_subscription(
-            Odometry, '/diff_cont/odom', self.onOdom, 10)
+            Odometry, '/tb4_34/odom', self.onOdom, 10)
         self.sub_goal = self.create_subscription(
             PoseStamped, '/goal_pose', self.onGoal, 10)
 
         self.vel_cmd_pub = self.create_publisher(
-            Twist, '/diff_cont/cmd_vel', 10)
+            Twist, '/tb4_34/cmd_vel', 10)
         self.pub_viz = self.create_publisher(Marker, "waypoints", 10)
 
         self.marker_frame = "map"
@@ -222,10 +222,9 @@ class PDController(Node):
         """
         self.pos[0] = odom_msg.pose.pose.position.x
         self.pos[1] = odom_msg.pose.pose.position.y
-
         orientation_q = odom_msg.pose.pose.orientation
         orientation_list = [orientation_q.x,
-                            orientation_q.y, orientation_q.z, orientation_q.w]
+                        orientation_q.y, orientation_q.z, orientation_q.w]
         self.theta = euler_from_quaternion(orientation_list)[2]
 
         now_odom_time = rclpy.time.Time.from_msg(odom_msg.header.stamp)

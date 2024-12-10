@@ -11,28 +11,33 @@ class SquareNode(Node):
         
         self.twist_publisher = self.create_publisher(
             Twist,
-            '/diff_cont/cmd_vel',
+            '/tb4_34/cmd_vel',
             10)
         timer_period = 0.5
+        self.dt = 0.0
         self.last_odom_time = self.get_clock().now()
         self.timer = self.create_timer(timer_period, self.publisher_callback)
     
     def publisher_callback(self):
         robot_twist = Twist()
-        robot_twist.linear.x = 0.2
-        robot_twist.angular.z = 0.0
-
-        now_odom_time = self.get_clock().now()
-        dt_tmp = (now_odom_time - self.last_odom_time).to_msg()
-        self.dt = float(dt_tmp.sec + dt_tmp.nanosec/1e9)
 
         if (self.dt >= 4.0):
-            self.last_odom_time = self.get_clock().now()
-            robot_twist.angular.z = math.pi
-            while (self.dt < 2.0):
+            robot_twist.linear.x = 0.0
+            robot_twist.angular.z = math.pi / 4
+            now_odom_time = self.get_clock().now()
+            dt_tmp = (now_odom_time - self.last_odom_time).to_msg()
+            self.dt = float(dt_tmp.sec + dt_tmp.nanosec/1e9)
+            if (self.dt >= 6.0):
+                self.last_odom_time = self.get_clock().now()
                 now_odom_time = self.get_clock().now()
                 dt_tmp = (now_odom_time - self.last_odom_time).to_msg()
                 self.dt = float(dt_tmp.sec + dt_tmp.nanosec/1e9)
+        else:
+            robot_twist.linear.x = 0.15
+            robot_twist.angular.z = 0.0
+            now_odom_time = self.get_clock().now()
+            dt_tmp = (now_odom_time - self.last_odom_time).to_msg()
+            self.dt = float(dt_tmp.sec + dt_tmp.nanosec/1e9)
 
         self.twist_publisher.publish(robot_twist)
 

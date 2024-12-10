@@ -13,7 +13,7 @@ def generate_launch_description():
     package_path = os.path.join(get_package_share_directory(package_name))
 
     # Parse the urdf with xacro
-    xacro_file = os.path.join(package_path, "urdf", "differential_robot_simu_task4_part1.urdf")
+    xacro_file = os.path.join(package_path, "urdf", "differential_robot_simu_task5_part2.urdf")
     doc = xacro.parse(open(xacro_file))
     xacro.process_doc(doc)
     params = {"robot_description": doc.toxml()}
@@ -24,7 +24,7 @@ def generate_launch_description():
         default=os.path.join(
             get_package_share_directory(package_name),
             "config",
-            "task4_config.rviz",
+            "default_task9.rviz",
         ),
     )
 
@@ -49,18 +49,12 @@ def generate_launch_description():
         name="teleop_twist_keyboard",
         prefix='xterm -e',
         remappings=[
-            ('/cmd_vel', '/diff_cont/cmd_vel_unstamped'),
+            ('/cmd_vel', '/tb4_34/cmd_vel'),
         ],
     )
 
     return LaunchDescription([
         robot_state_publisher_node,
         rviz_node,
-        teleop_twist_node,
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([get_package_share_directory('setup_gazebo_ias0220'), '/launch/gazebo.launch.py']),
-            launch_arguments={
-                'xacro_file': xacro_file,
-            }.items()
-        ),             
+        teleop_twist_node,           
     ])

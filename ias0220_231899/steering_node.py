@@ -27,7 +27,7 @@ class SteeringNode(Node):
         self.dist_check = False
         self.twist_publisher = self.create_publisher(
             Twist,
-            '/diff_cont/cmd_vel_unstamped',
+            '/tb4_34/cmd_vel',
             10)
         timer_period = 0.5
         self.timer = self.create_timer(timer_period, self.publisher_callback)

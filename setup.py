@@ -30,7 +30,8 @@ setup(
     entry_points={
         'console_scripts': [
                 'simple_control = ias0220_231899.simple_control:main',
-                'square_movement = ias0220_231899.square_movement:main'
+                'square_movement = ias0220_231899.square_movement:main',
+                'steering_node = ias0220_231899.steering_node:main',
         ],
     },
 )
