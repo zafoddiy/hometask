@@ -60,7 +60,7 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /robot_description
+        Value: /tb4_34/robot_description
       Enabled: true
       Links:
         All Links Enabled: true
@@ -68,36 +68,188 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-        base_footprint:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
         base_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        head:
+        bump_front_center:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        bump_front_left:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        bump_front_right:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        bump_left:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        bump_right:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        bumper:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
+        button_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        button_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        button_power:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        cliff_front_left:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        cliff_front_right:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        cliff_side_left:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        cliff_side_right:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        front_caster_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        front_left_bottom_weight_block:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        front_left_top_weight_block:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        front_left_tower_standoff:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        front_right_bottom_weight_block:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        front_right_top_weight_block:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        front_right_tower_standoff:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        imu_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        ir_intensity_front_center_left:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        ir_intensity_front_center_right:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        ir_intensity_front_left:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        ir_intensity_front_right:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        ir_intensity_left:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        ir_intensity_right:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        ir_intensity_side_left:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        ir_omni:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         left_wheel:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        left_wheel_marker:
+        mouse:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        oakd_camera_bracket:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        passive_wheel:
+        oakd_imu_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        oakd_left_camera_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        oakd_left_camera_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        oakd_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        passive_wheel_holder:
+        oakd_rgb_camera_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        oakd_rgb_camera_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        oakd_right_camera_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        oakd_right_camera_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        rear_left_tower_standoff:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rear_right_tower_standoff:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -107,11 +259,29 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        right_wheel_marker:
+        rplidar_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
+        shell_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        tower_sensor_plate:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wheel_drop_left:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        wheel_drop_right:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
       Mass Properties:
         Inertia: false
         Mass: false
@@ -157,7 +327,7 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /diff_cont/odom
+        Value: /tb4_34/odom
       Value: true
     - Class: rviz_default_plugins/Marker
       Enabled: true
@@ -172,44 +342,26 @@ Visualization Manager:
         Reliability Policy: Reliable
         Value: /waypoints
       Value: true
-    - Angle Tolerance: 0.10000000149011612
-      Class: rviz_default_plugins/Odometry
-      Covariance:
-        Orientation:
-          Alpha: 0.5
-          Color: 255; 255; 127
-          Color Style: Unique
-          Frame: Local
-          Offset: 1
-          Scale: 1
-          Value: true
-        Position:
-          Alpha: 0.30000001192092896
-          Color: 204; 51; 204
-          Scale: 1
-          Value: true
-        Value: true
+    - Alpha: 0.699999988079071
+      Class: rviz_default_plugins/Map
+      Color Scheme: map
+      Draw Behind: false
       Enabled: true
-      Keep: 100
-      Name: Odometry
-      Position Tolerance: 0.10000000149011612
-      Shape:
-        Alpha: 1
-        Axes Length: 1
-        Axes Radius: 0.10000000149011612
-        Color: 255; 25; 0
-        Head Length: 0.30000001192092896
-        Head Radius: 0.10000000149011612
-        Shaft Length: 1
-        Shaft Radius: 0.05000000074505806
-        Value: Arrow
+      Name: Map
       Topic:
         Depth: 5
         Durability Policy: Volatile
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /ground_truth
+        Value: /map
+      Update Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /map_updates
+      Use Timestamp: false
       Value: true
   Enabled: true
   Global Options:

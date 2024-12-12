@@ -4,23 +4,11 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
-from launch.actions import IncludeLaunchDescription
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-import xacro
 
 package_name = "ias0220_231899"
 
 
 def generate_launch_description():
-    use_sim_time = LaunchConfiguration('use_sim_time', default='True')
-    package_path = os.path.join(get_package_share_directory(package_name))
-
-    # Parse the urdf with xacro
-    xacro_file = os.path.join(package_path, "urdf",
-                              "differential_robot_simu_task5_part2.urdf")
-    doc = xacro.parse(open(xacro_file))
-    xacro.process_doc(doc)
-    params = {"robot_description": doc.toxml(), "use_sim_time": use_sim_time}
 
     # Define launch arguments
     rvizconfig = LaunchConfiguration(
@@ -28,7 +16,7 @@ def generate_launch_description():
         default=os.path.join(
             get_package_share_directory(package_name),
             "config",
-            "task8_config.rviz",
+            "slam_config.rviz",
         ),
     )
 
@@ -44,19 +32,32 @@ def generate_launch_description():
         executable="rviz2",
         name="rviz",
         arguments=["--display-config", rvizconfig],
+        remappings=[
+            ('/tf', '/tb4_34/tf'),
+            ('/tf_static', '/tb4_34/tf_static'),
+        ],
     )
 
-    static_transform_publisher_node = Node(
-        package="tf2_ros",
-        executable="static_transform_publisher",
-        arguments=["--frame-id", "map", "--child-frame-id", "odom"],
+    slam_node = Node(
+        package="slam_toolbox",
+        executable="async_slam_toolbox_node",
+        name="async_slam_toolbox_node",
+        remappings=[
+            ('/scan', '/tb4_34/scan'),
+            ('/tf', '/tb4_34/tf'),
+            ('/tf_static', '/tb4_34/tf_static'),
+        ],
     )
 
     controller_node = Node(
         package="ias0220_231899",
         executable="simple_control",
         parameters=[yaml_config],
-        output="screen"
+        output="screen",
+        remappings=[
+            ('/tf', '/tb4_34/tf'),
+            ('/tf_static', '/tb4_34/tf_static'),
+        ],
     )
 
     return LaunchDescription([
@@ -65,13 +66,6 @@ def generate_launch_description():
             default_value='true',
             description='Use simulation (Gazebo) clock if true'),
         rviz_node,
-        static_transform_publisher_node,
         controller_node,
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([get_package_share_directory(
-                'setup_gazebo_ias0220'), '/launch/gazebo.launch.py']),
-            launch_arguments={
-                'xacro_file': xacro_file,
-            }.items()
-        ),
+        slam_node,
     ])

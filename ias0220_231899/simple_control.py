@@ -15,12 +15,13 @@ import math
 import rclpy
 import time
 from rclpy.node import Node
-from rclpy.time import Duration, Time
 import numpy as np
 from geometry_msgs.msg import Twist, PoseStamped, Point
 from visualization_msgs.msg import Marker
 from nav_msgs.msg import Odometry
+from sensor_msgs.msg import LaserScan
 from tf_transformations import euler_from_quaternion
+from nav2_simple_commander.robot_navigator import BasicNavigator
 
 from tf2_ros.buffer import Buffer
 from tf2_ros.transform_listener import TransformListener
@@ -176,8 +177,8 @@ class PDController(Node):
         # Your code here
         try:
             transform = self.tf_buffer.lookup_transform(
-                "map", 
-                "odom", 
+                "map",
+                "odom",
                 rclpy.time.Time())
             dist_diff = [self.waypoints[0][0] -
                          self.pos[0] - transform.transform.translation.x, self.waypoints[0][1] - self.pos[1] - transform.transform.translation.y]
@@ -224,7 +225,7 @@ class PDController(Node):
         self.pos[1] = odom_msg.pose.pose.position.y
         orientation_q = odom_msg.pose.pose.orientation
         orientation_list = [orientation_q.x,
-                        orientation_q.y, orientation_q.z, orientation_q.w]
+                            orientation_q.y, orientation_q.z, orientation_q.w]
         self.theta = euler_from_quaternion(orientation_list)[2]
 
         now_odom_time = rclpy.time.Time.from_msg(odom_msg.header.stamp)
